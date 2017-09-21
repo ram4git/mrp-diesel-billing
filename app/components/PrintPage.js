@@ -59,7 +59,6 @@ export default class PrintPage extends Component {
   }
 
   renderPageHeader(copyType) {
-    const date = new Date();
     const dateStr = moment().format('DD/MMM/YYYY - h:mm:ssa')
 
     return (

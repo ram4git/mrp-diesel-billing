@@ -8,6 +8,7 @@ import Billing from './Billing';
 import Collections from './Collections';
 import Settings from './Settings';
 import Reports from './Reports';
+import Search from './Search';
 import Sundry from './Sundry';
 import { logout } from '../int/Auth';
 
@@ -21,6 +22,7 @@ class Main extends Component {
     billing: Billing,
     collections: Collections,
     reports: Reports,
+    search: Search,
     settings: Settings,
     logout: Billing
   }
@@ -53,6 +55,7 @@ class Main extends Component {
           <Menu.Item name='billing' active={activeItem === 'billing'} onClick={this.handleItemClick}>BILLING</Menu.Item>
           <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleItemClick}>SETTINGS</Menu.Item>
           <Menu.Item name='reports' active={activeItem === 'reports'} onClick={this.handleItemClick}>REPORTS</Menu.Item>
+          <Menu.Item name='search' active={activeItem === 'search'} onClick={this.handleItemClick}>SEARCH</Menu.Item>
           <Menu.Item name='logout' active={activeItem === 'logout'} onClick={this.handleLogOut}>LOGOUT</Menu.Item>
         </Menu>
         { this.renderSegment() }

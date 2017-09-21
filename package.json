@@ -202,6 +202,7 @@
     "query-string": "^5.0.0",
     "react": "^15.5.4",
     "react-datepicker": "^0.53.0",
+    "react-datetime": "^2.10.1",
     "react-dom": "^15.5.4",
     "react-hot-loader": "3.0.0-beta.6",
     "react-live-clock": "^2.0.1",

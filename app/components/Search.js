@@ -1,65 +1,54 @@
 import React, { Component } from 'react';
 import { remote } from 'electron';
-import { getBills, getBillsForShift } from '../int/Masters';
-import { Loader, Header, Message, Table, Popup, Dropdown, Button, Label } from 'semantic-ui-react';
-import DatePicker from 'react-datepicker';
+import DatePicker from 'react-datetime';
 import moment from 'moment';
+import { getMasters, getBillsForShift, getBillsForVehicle } from '../int/Masters';
+import { Loader, Header, Message, Table, Popup, Dropdown, Button, Label } from 'semantic-ui-react';
 
-const shiftOptions = [
-  { key: 'morning', value: 'morning', text: 'MORNING 9AM-9PM' },
-  { key: 'night', value: 'night', text: 'NIGHT 9PM-9AM' }
-];
-
-
-class Reports extends Component {
+class Search extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
       loading: true,
-      shift: 'morning',
-      startDate: moment()
+      startDate: new Date().setHours(0, 0, 0, 0),
+      endDate: new Date().setHours(24, 0, 0, 0)
     };
   }
 
-
   componentDidMount() {
-    const currHour = this.state.startDate.get('hour');
-    if(currHour >= 9 && currHour < 18) {
-      if(this.state.shift === 'night') {
-        this.setState({
-          shift: 'morning'
-        });
-      }
-    } else {
-      if(this.state.shift === 'morning') {
-        this.setState({
-          shift: 'night'
-        });
-      }
-    }
-    this.getBillsFromDB();
+    this.getBillsFromDB(this.state.startDate, this.state.endDate);
+    this.loadMasters();
   }
 
-  getBillsFromDB() {
-    getBills().then((rows) => {
+  loadMasters() {
+    getMasters().then((rows) => {
+      const masters = {};
       if (rows) {
+        rows.forEach((row, index) => {
+          const { name, key, value } = row;
+          masters[name] = masters[name] || [];
+          masters[name].push(
+            {
+              key,
+              value: key,
+              text: value
+            }
+          );
+        });
         this.setState({
-          data: rows,
-          loading: false,
+          masters
         });
       }
     }).catch((err) => {
       console.log(err);
-      //alert("Unable to fetch BILLs from DB");
       this.setState({
-        loading: false,
-        errorMsg: 'DB ACCESS ERROR'
+        errorMsg: err
       });
     });
   }
 
-  getBillsForShiftDB(start, end) {
+  getBillsFromDB(start, end) {
     getBillsForShift(start,end).then((rows) => {
       if (rows) {
         this.setState({
@@ -77,12 +66,38 @@ class Reports extends Component {
     });
   }
 
+  getBillsForVehicle(start, end, vehicleNo) {
+    getBillsForVehicle(start, end, vehicleNo).then((rows) => {
+      if (rows) {
+        this.setState({
+          data: rows,
+          loading: false,
+        });
+      }
+    }).catch((err) => {
+      console.log(err);
+      //alert("Unable to fetch BILLs from DB");
+      this.setState({
+        loading: false,
+        errorMsg: 'DB ACCESS ERROR'
+      });
+    });
+  }
+
+  getVehicleNumbers() {
+    const { masters } = this.state;
+    if (masters) {
+      return masters.vehicleNumbers;
+    }
+    return [];
+  }
+
   render() {
     return (
-      <div className="reports">
-        <Header as='h1'>DAYWISE BILLS</Header>
+      <div className="searchResults">
+        <Header as='h1'>SEARCH BILLS</Header>
         { this.state.loading
-          ? <Loader active size='medium' inline='centered'>Fetching Bills...</Loader>
+          ? <Loader active size='medium' inline='centered'>Searching Bills...</Loader>
           : this.renderBillsTable() }
         { this.showMsgIfAny() }
       </div>
@@ -120,13 +135,10 @@ class Reports extends Component {
                 DRIVER
               </Table.HeaderCell>
               <Table.HeaderCell width={1} >
-                SMALL METER
-              </Table.HeaderCell>
-              <Table.HeaderCell width={1} >
-                FUEL LEFT
-              </Table.HeaderCell>
-              <Table.HeaderCell width={1} >
                 DIESEL
+              </Table.HeaderCell>
+              <Table.HeaderCell width={1} >
+                MILEAGE
               </Table.HeaderCell>
               <Table.HeaderCell width={2} >
                 ODOMETER
@@ -137,16 +149,13 @@ class Reports extends Component {
               <Table.HeaderCell width={2} >
                 BILLED BY
               </Table.HeaderCell>
-              <Table.HeaderCell width={1} >
-                KEY ISSUED?
-              </Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
             { data.map((row) => {
-              const { sno, date, vehicleNo, driverName, meterReading, remainingFuel } = row;
+              const { sno, date, vehicleNo, driverName } = row;
               const { dieselIssued, odometerReading, remarks } = row;
-              const { areKeysIssued, billEnteredBy, screenshot } = row;
+              const { billEnteredBy, mileage, screenshot } = row;
               const d = new Date(date);
               const dateString = moment(d).format('DD/MMM/YYYY - h:mm:ssa')
               counter = counter + 1;
@@ -164,13 +173,11 @@ class Reports extends Component {
                     </Popup>
                   </Table.Cell>
                   <Table.Cell>{ driverName }</Table.Cell>
-                  <Table.Cell>{ meterReading }</Table.Cell>
-                  <Table.Cell>{ remainingFuel }</Table.Cell>
                   <Table.Cell>{ dieselIssued }</Table.Cell>
+                  <Table.Cell>{ mileage }</Table.Cell>
                   <Table.Cell>{ odometerReading }</Table.Cell>
                   <Table.Cell>{ remarks }</Table.Cell>
                   <Table.Cell>{ billEnteredBy }</Table.Cell>
-                  <Table.Cell>{ areKeysIssued }</Table.Cell>
                 </Table.Row>
               );
             })}
@@ -180,18 +187,45 @@ class Reports extends Component {
     );
   }
 
+  handleSearch(e,data) {
+    const { startDate, endDate } = this.state;
+    this.getBillsFromDB(startDate, endDate);
+  }
+
+  handlePrint(e,data) {
+    remote.getCurrentWebContents().print();
+  }
+
   renderDateShiftPicker() {
     return (
       <div>
-        <div className="datePicker">
+        <div className="startDatePicker">
           <DatePicker
             withPortal
+            value={this.state.startDate}
             dateFormat="DD/MM/YYYY"
+            timeFormat="h:mm:ssa"
             className="datePicker"
+            closeOnSelect={true}
+            closeOnTab={true}
+            placeholder="start date"
             selected={this.state.startDate}
-            onChange={this.handleDateShiftChange.bind(this)} />
+            onChange={this.handleStartDateChange.bind(this)} />
         </div>
-        <Dropdown className="shiftPicker" placeholder='shift' search selection options={shiftOptions} value={this.state.shift} onChange={ this.handleShiftChange.bind(this) } />
+        <div className="endDatePicker">
+          <DatePicker
+            withPortal
+            value={this.state.endDate}
+            dateFormat="DD/MM/YYYY"
+            timeFormat="h:mm:ssa"
+            className="datePicker"
+            closeOnSelect={true}
+            closeOnTab={true}
+            placeholder="end date"
+            selected={this.state.endDate}
+            onChange={this.handleEndDateChange.bind(this)} />
+        </div>
+        <Dropdown search className="vehiclePicker" placeholder='vehicle' search selection options={this.getVehicleNumbers()} value={this.state.vehicleNo} onChange={this.handleVehicleChange.bind(this)} />
         <Button.Group>
           <Button primary onClick={ this.handleSearch.bind(this) }>SEARCH</Button>
           <Button secondary onClick={ this.handlePrint.bind(this) }>PRINT</Button>
@@ -203,7 +237,8 @@ class Reports extends Component {
   }
 
   renderTotalBalance() {
-    const totalBalance = this.state.data.map((item) => item.dieselIssued).reduce((a, b) => a + b, 0) || 0;
+    const totalBalance = this.state.data.map((item) => item.dieselIssued)
+      .reduce((a, b) => a + b, 0) || 0;
     return (
       <Label as='a' size="massive">
         Total Diesel
@@ -212,39 +247,29 @@ class Reports extends Component {
     );
   }
 
-  handleSearch(e,data) {
-    let startEpoch = this.state.startDate.toDate().setHours(9,0,0,0);
-    let endEpoch = this.state.startDate.toDate().setHours(21,0,0,0);
-    if(this.state.shift === 'night') {
-      startEpoch = this.state.startDate.toDate().setHours(21,0,0,0);
-      endEpoch = this.state.startDate.toDate().setHours(33,0,0,0);
-    }
-    this.getBillsForShiftDB(startEpoch, endEpoch);
-  }
-
-  handlePrint(e,data) {
-    remote.getCurrentWebContents().print();
-  }
-
-  handleDateShiftChange(date) {
-    console.log("RAM");
+  handleStartDateChange(date) {
     this.setState({
-      startDate: date
+      startDate: date.toDate()
     });
   }
 
-  handleShiftChange(e, data) {
+  handleEndDateChange(date) {
+    this.setState({
+      endDate: date.toDate()
+    });
+  }
+
+  handleVehicleChange(e, data) {
     const { value } = data;
-    this.setState({
-      shift: value
-    });
+    if (value) {
+      this.setState({
+        loading: true,
+        vehicleNo: value
+      });
+      const { startDate, endDate } = this.state;
+      this.getBillsForVehicle(startDate, endDate, value);
+    }
   }
-
-  formatDate(epoch) {
-    const date = new Date(epoch);
-    return date.toLocaleString();
-  }
-
 }
 
-export default Reports;
+export default Search;

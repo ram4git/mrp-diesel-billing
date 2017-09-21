@@ -13,10 +13,10 @@ export function addBill(bill) {
   valuesArray.push(bill.vehicleNo);// #2 action
   valuesArray.push(bill.vehicleType);// #3 product
   valuesArray.push(bill.driverName);// #4 region
-  valuesArray.push(bill.meterReading);// #5 lorryType
-  valuesArray.push(bill.remainingFuel);// #6 totalWeightInTons
-  valuesArray.push(bill.dieselIssued);// #7 activityRows
-  valuesArray.push(bill.odometerReading);// #8  totalAmout
+  valuesArray.push(bill.meterReading.toFixed(2));// #5 lorryType
+  valuesArray.push(bill.remainingFuel.toFixed(2));// #6 totalWeightInTons
+  valuesArray.push(bill.dieselIssued.toFixed(2));// #7 activityRows
+  valuesArray.push(bill.odometerReading.toFixed(2));// #8  totalAmout
   valuesArray.push(bill.remarks); //#9 jattuAmount
   valuesArray.push(bill.areKeysIssued); //#10 balanceAmount
   valuesArray.push(bill.billEnteredBy); //#11 chargePerTon
@@ -58,6 +58,20 @@ export function getBillsForShift(start, end) {
   return new Promise((resolve, reject) => {
     db.serialize(() => {
       db.all('SELECT * FROM BILLS WHERE date >= ? AND date < ? ORDER BY sno DESC LIMIT 100', [start, end], (err, rows) => {
+        if (!err) {
+          resolve(rows);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  });
+}
+
+export function getBillsForVehicle(start, end, vehicleNo) {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      db.all('SELECT * FROM BILLS WHERE date >= ? AND date < ? AND vehicleNo == ? ORDER BY sno DESC LIMIT 100', [start, end, vehicleNo], (err, rows) => {
         if (!err) {
           resolve(rows);
         } else {
@@ -145,63 +159,3 @@ export function addUser(name, pass) {
     });
   });
 }
-
-
-export const lorryToRusumMap = {
-  lorry_6_tyres: 150,
-  lorry_10_tyres: 200,
-  lorry_12_tyres: 250,
-  lorry_14_tyres: 300,
-  lorry_16_tyres: 350
-};
-
-export const lorry2JattuMap = {
-  lorry_6_tyres: 250,
-  lorry_10_tyres: 450,
-  lorry_12_tyres: 550,
-  lorry_14_tyres: 650,
-  lorry_16_tyres: 750
-};
-
-export const chargesMap = {
-  loading: {
-    rice: {
-      local: 35,
-      outside: 35
-    },
-    paddy: {
-      local: 35,
-      outside: 35
-    },
-    broken: {
-      local: 35,
-      outside: 35
-    },
-  },
-  unloading: {
-    rice: {
-      local: 35,
-      outside: 40,
-      extra: {
-        local: 0,
-        outside: 300
-      }
-    },
-    paddy: {
-      local: 35,
-      outside: 40,
-      extra: {
-        local: 0,
-        outside: 100
-      }
-    },
-    broken: {
-      local: 35,
-      outside: 40,
-      extra: {
-        local: 0,
-        outside: 300
-      }
-    }
-  }
-};

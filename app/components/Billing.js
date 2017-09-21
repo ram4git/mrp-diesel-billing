@@ -65,9 +65,9 @@ class Billing extends Component {
         </Segment>
         <Form as="div">
           <Form.Group className="selectors" as="div">
-            <Form.Select label='Vehicle No' options={ this.getMasters('vehicleNumbers') } placeholder='REG NO' width={5} required  onChange={ this.onChangeValue.bind(this, 'vehicleNo')} error={!this.state.vehicleNo} />
-            <Form.Select label='Vehicle Type' options={ this.getMasters('vehicleType') } placeholder='Lorry/Van' width={5} required onChange={ this.onChangeValue.bind(this, 'vehicleType')} error={!this.state.vehicleType} />
-            <Form.Select label='Driver Name' options={ this.getMasters('drivers')} placeholder='driver name' width={6} required onChange={ this.onChangeValue.bind(this, 'driverName')} error={!this.state.driverName} />
+            <Form.Select search label='Vehicle No' options={ this.getMasters('vehicleNumbers') } placeholder='REG NO' width={5} required  onChange={ this.onChangeValue.bind(this, 'vehicleNo')} error={!this.state.vehicleNo} />
+            <Form.Select search label='Vehicle Type' options={ this.getMasters('vehicleType') } placeholder='Lorry/Van' width={5} required onChange={ this.onChangeValue.bind(this, 'vehicleType')} error={!this.state.vehicleType} />
+            <Form.Select search label='Driver Name' options={ this.getMasters('drivers')} placeholder='driver name' width={6} required onChange={ this.onChangeValue.bind(this, 'driverName')} error={!this.state.driverName} />
           </Form.Group>
           { this.renderInputFields() }
           { this.renderCamera() }

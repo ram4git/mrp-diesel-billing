@@ -113,7 +113,7 @@ class Reports extends Component {
               <Table.HeaderCell width={2} >
                 DATE
               </Table.HeaderCell>
-              <Table.HeaderCell width={2} >
+              <Table.HeaderCell width={1} >
                 VEHICLE
               </Table.HeaderCell>
               <Table.HeaderCell width={2} >
@@ -131,6 +131,9 @@ class Reports extends Component {
               <Table.HeaderCell width={2} >
                 ODOMETER
               </Table.HeaderCell>
+              <Table.HeaderCell width={1} >
+                MILEAGE
+              </Table.HeaderCell>
               <Table.HeaderCell width={2} >
                 REMARKS
               </Table.HeaderCell>
@@ -147,6 +150,7 @@ class Reports extends Component {
               const { sno, date, vehicleNo, driverName, meterReading, remainingFuel } = row;
               const { dieselIssued, odometerReading, remarks } = row;
               const { areKeysIssued, billEnteredBy, screenshot } = row;
+              const { mileage, prevOdometerReading } = row;
               const d = new Date(date);
               const dateString = moment(d).format('DD/MMM/YYYY - h:mm:ssa')
               counter = counter + 1;
@@ -167,7 +171,8 @@ class Reports extends Component {
                   <Table.Cell>{ meterReading }</Table.Cell>
                   <Table.Cell>{ remainingFuel }</Table.Cell>
                   <Table.Cell>{ dieselIssued }</Table.Cell>
-                  <Table.Cell>{ odometerReading }</Table.Cell>
+                  <Table.Cell>{ `${odometerReading} (p${prevOdometerReading})` }</Table.Cell>
+                  <Table.Cell>{ mileage }</Table.Cell>
                   <Table.Cell>{ remarks }</Table.Cell>
                   <Table.Cell>{ billEnteredBy }</Table.Cell>
                   <Table.Cell>{ areKeysIssued }</Table.Cell>

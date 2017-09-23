@@ -118,8 +118,9 @@ export default class Masters extends Component {
   }
 
   getMastersFromDB() {
-    getMasters().then((rows) => {
+    getMasters().then((data) => {
       const masters = {};
+      const { rows, settings } = data;
       if (rows) {
         rows.forEach((row, index) => {
           const { name, key, value } = row;
@@ -138,6 +139,7 @@ export default class Masters extends Component {
           modalMasterKey: '',
           modalMasterValue: ''
         });
+        settings.forEach(row => { this.setState({ [row.name]: row.textJson }); });
       }
     }).catch((err) => {
       console.log(err);

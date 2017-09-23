@@ -61,8 +61,8 @@ export default class Users extends Component {
       <div>
         { this.renderMsg() }
         <Segment inverted color='teal' className="userCreate">
-          <Form inverted className="userManagement">
-            <Form.Group widths='equal'>
+          <Form inverted className="userManagement" as="div">
+            <Form.Group widths='equal' as="div">
               <Form.Input label='New User Name' placeholder='User Name' name='user' value={user} onChange={this.handleChange} />
               <Form.Input label='Password' placeholder='Password' name='pass' value={pass} onChange={this.handleChange} />
             </Form.Group>

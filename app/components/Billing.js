@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Form, Step, Button, Statistic, Message, Segment } from 'semantic-ui-react'
-import { getMasters, chargesMap, lorryToRusumMap, lorry2JattuMap, addBill } from '../int/Masters';
+import { getMasters, addBill, getLastFillRecord } from '../int/Masters';
 import path from 'path';
 import electron, { remote } from 'electron';
 import Clock from 'react-live-clock';
@@ -20,7 +20,8 @@ class Billing extends Component {
     this.state = {
       loading: true,
       meterReading: 0,
-      remainingFuel: 0
+      remainingFuel: 0,
+      mileage: 0
     };
   }
 
@@ -67,7 +68,7 @@ class Billing extends Component {
         </Segment>
         <Form as="div">
           <Form.Group className="selectors" as="div">
-            <Form.Select search label='Vehicle No' options={ this.getMasters('vehicleNumbers') } placeholder='REG NO' width={5} required  onChange={ this.onChangeValue.bind(this, 'vehicleNo')} error={!this.state.vehicleNo} />
+            <Form.Select search label='Vehicle No' options={ this.getMasters('vehicleNumbers') } placeholder='REG NO' width={5} required  onChange={ this.onVehicleChange.bind(this)} error={!this.state.vehicleNo} />
             <Form.Select search label='Vehicle Type' options={ this.getMasters('vehicleType') } placeholder='Lorry/Van' width={5} required onChange={ this.onChangeValue.bind(this, 'vehicleType')} error={!this.state.vehicleType} />
             <Form.Select search label='Driver Name' options={ this.getMasters('drivers')} placeholder='driver name' width={6} required onChange={ this.onChangeValue.bind(this, 'driverName')} error={!this.state.driverName} />
           </Form.Group>
@@ -141,25 +142,28 @@ class Billing extends Component {
 
   renderInputFields() {
     const { remarks, dieselIssued, odometerReading, areKeysIssued } = this.state;
+    const { prevOdometerReading, prevDieselFilled, mileage } = this.state;
 
     return (
       <Form.Group as="div" className="inputs">
-        <Form.Input label='Diesel Issued' placeholder='' width={4} onChange={ this.onChangeValue.bind(this, 'dieselIssued')} value={dieselIssued} error={!this.state.dieselIssued} />
-        <Form.Input label='Odometer Reading' placeholder='' width={4} onChange={ this.onChangeValue.bind(this, 'odometerReading')} value={odometerReading} error={!this.state.odometerReading} />
+        <Form.Input label={`Diesel Issued (prev: ${prevDieselFilled} Lts)`} placeholder='' width={4} onChange={ this.onChangeValue.bind(this, 'dieselIssued')} value={dieselIssued} error={!this.state.dieselIssued} />
+        <Form.Input label={`Odometer Reading (prev: ${prevOdometerReading} KMs)`} placeholder='' width={4} onChange={ this.onOdometerChange.bind(this)} value={odometerReading} error={!this.state.odometerReading} />
         <Form.Input label='Keys Issued?' width={2} onChange={ this.onChangeValue.bind(this, 'areKeysIssued')} value={areKeysIssued} />
-        <Form.TextArea label='Remarks' placeholder='' width={6} onChange={ this.onChangeValue.bind(this, 'remarks')} value={this.state.remarks} />
+        <Form.TextArea label={`Remarks (mileage: ${mileage || '0.0'} KM/Lt)`} placeholder='' width={6} onChange={ this.onChangeValue.bind(this, 'remarks')} value={this.state.remarks} />
     </Form.Group>
     );
   }
 
   saveBillToDB() {
-    const { vehicleNo, vehicleType, driverName, meterReading, remainingFuel } = this.state;
-    const { dieselIssued, odometerReading, remarks, areKeysIssued, screenshot } = this.state;
+    const { vehicleNo, vehicleType, driverName, meterReading, remainingFuel, mileage } = this.state;
+    const { dieselIssued, odometerReading, remarks, areKeysIssued, screenshot, prevOdometerReading } = this.state;
     const date = new Date();
     const sno = `${date.toISOString().slice(0, 10).split('-').join('')}${date.toISOString().slice(11, 23).split(/:|\./).join('')}`;
     const time = date.getTime();
 
-    const { status, data } = Storage.get('session');
+    const { data } = Storage.get('session');
+    const newMeterReading = (parseFloat(meterReading) + parseFloat(dieselIssued));
+    const newRemainingFuel = (parseFloat(remainingFuel) - parseFloat(dieselIssued));
 
     const payLoad = {
       sno,
@@ -174,10 +178,12 @@ class Billing extends Component {
       remarks,
       areKeysIssued,
       billEnteredBy: data.user,
-      screenshot
+      screenshot,
+      mileage,
+      prevOdometerReading
     };
 
-    addBill(payLoad)
+    addBill(payLoad, newMeterReading, newRemainingFuel)
       .then((resp) => {
         console.log("LAST ID:" + resp.id);
         if (resp.success) {
@@ -224,6 +230,61 @@ class Billing extends Component {
     this.setState({
       [inputName]: value
     });
+  }
+
+  onVehicleChange(e, data) {
+    const { value } = data;
+    this.setState({
+      vehicleNo: value
+    });
+    this.fetchPreviousRecord(value);
+  }
+
+  onOdometerChange(e, data) {
+    const { value } = data;
+    this.setState({
+      odometerReading: value
+    });
+    const { prevOdometerReading, prevDieselFilled } = this.state;
+    if (prevOdometerReading) {
+      const mileage = (parseFloat(value) - parseFloat(prevOdometerReading)) / parseFloat(prevDieselFilled);
+      this.setState({
+        mileage: mileage.toFixed(2)
+      });
+    }
+  }
+
+  fetchPreviousRecord(value) {
+    getLastFillRecord(value)
+      .then((row) => {
+        if(row && row.length) {
+          const record = row[0];
+          const prevOdometerReading = record.odometerReading;
+          const prevDieselFilled = record.dieselIssued;
+          this.setState({
+            prevOdometerReading,
+            prevDieselFilled
+          });
+          if(this.state.odometerReading) {
+            const mileage = (parseFloat(this.state.odometerReading) - parseFloat(prevOdometerReading)) / parseFloat(prevDieselFilled);
+            this.setState({
+              mileage: mileage.toFixed(2)
+            });
+          }
+        } else {
+          this.setState({
+            prevOdometerReading: '______.__',
+            mileage: '____.__',
+            prevDieselFilled: '______.__'
+          });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        this.setState({
+          errorMsg: err
+        });
+      });
   }
 
   areAllFieldsEntered() {

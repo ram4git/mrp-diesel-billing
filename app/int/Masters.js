@@ -5,7 +5,7 @@ const dbPath = path.resolve(app.getPath('userData'), 'dieseldata.db');
 //C:\Users\IEUser\AppData\Roaming\mrp-waybridge-billing
 const db = new sqlite3.Database(dbPath);
 
-export function addBill(bill) {
+export function addBill(bill, meterReading, remainingFuel) {
   console.log("DB PATH=" + dbPath);
   let valuesArray = [];
   valuesArray.push(bill.sno);// #2 sno
@@ -13,24 +13,47 @@ export function addBill(bill) {
   valuesArray.push(bill.vehicleNo);// #2 action
   valuesArray.push(bill.vehicleType);// #3 product
   valuesArray.push(bill.driverName);// #4 region
-  valuesArray.push(bill.meterReading.toFixed(2));// #5 lorryType
-  valuesArray.push(bill.remainingFuel.toFixed(2));// #6 totalWeightInTons
+  valuesArray.push(parseFloat(bill.meterReading).toFixed(2));// #5 lorryType
+  valuesArray.push(parseFloat(bill.remainingFuel).toFixed(2));// #6 totalWeightInTons
   valuesArray.push(bill.dieselIssued.toFixed(2));// #7 activityRows
   valuesArray.push(bill.odometerReading.toFixed(2));// #8  totalAmout
   valuesArray.push(bill.remarks); //#9 jattuAmount
   valuesArray.push(bill.areKeysIssued); //#10 balanceAmount
   valuesArray.push(bill.billEnteredBy); //#11 chargePerTon
-  valuesArray.push(bill.screenshot); //#11 chargePerTon
-
+  valuesArray.push(bill.screenshot); //#12 chargePerTon
+  valuesArray.push(bill.mileage); //#13
+  valuesArray.push(bill.prevOdometerReading); //#14
 
   return new Promise((resolve, reject) => {
     const stmt = 'INSERT INTO BILLS (sno, date, vehicleNo, vehicleType, driverName,' +
     ' meterReading, remainingFuel, dieselIssued, odometerReading, remarks,' +
-    ' areKeysIssued, billEnteredBy, screenshot) ' +
-    'VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
+    ' areKeysIssued, billEnteredBy, screenshot, mileage, prevOdometerReading) ' +
+    'VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
     db.run(stmt, valuesArray, (err) => {
       if (!err) {
-        resolve({ success: true, id: bill.sno });
+        const updateRemainingFuelStatement = 'UPDATE SETTINGS SET textJson = ? WHERE name = ?';
+        const values1 = [];
+        values1.push(remainingFuel);
+        values1.push('remainingFuel');
+        db.run(updateRemainingFuelStatement, values1, (err1) => {
+          if (!err1) {
+            const updateMeterReadingStatement = 'UPDATE SETTINGS SET textJson = ? WHERE name = ?';
+            const values2 = [];
+            values2.push(meterReading);
+            values2.push('meterReading');
+            db.run(updateMeterReadingStatement, values2, (err2) => {
+              if (!err2) {
+                resolve({ success: true, remainingFuel, meterReading, id: bill.sno });
+              } else {
+                console.log(err);
+                reject(err);
+              }
+            });
+          } else {
+            console.log(err);
+            reject(err);
+          }
+        });
       } else {
         reject(err);
       }
@@ -249,6 +272,17 @@ export function getFuelFillRecords() {
   });
 }
 
-export function getGlobalSettings() {
-
+export function getLastFillRecord(vehicleNo) {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      db.all('SELECT * FROM BILLS WHERE vehicleNo = ? ORDER BY sno DESC LIMIT 1', vehicleNo, (err, row) => {
+        if (err) {
+          console.log('SQL ERROR', err);
+          reject(err);
+        } else {
+          resolve(row);
+        }
+      });
+    });
+  });
 }

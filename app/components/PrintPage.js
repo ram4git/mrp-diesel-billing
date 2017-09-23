@@ -11,7 +11,6 @@ export default class PrintPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      mileage: 10.23
     };
   }
 
@@ -95,7 +94,7 @@ export default class PrintPage extends Component {
           </tr>
           <tr>
             <td className="key">MILEAGE<span>:</span></td>
-            <td className="value">{`${this.state.mileage.toFixed(2)} KM/Ltr`}</td>
+            <td className="value">{`${this.state.data.mileage} KM/Ltr`}</td>
             <td className="key">DRIVER<span>:</span></td>
             <td className="value">{this.state.data.driverName}</td>
           </tr>

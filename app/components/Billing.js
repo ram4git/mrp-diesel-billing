@@ -19,14 +19,15 @@ class Billing extends Component {
     super(props);
     this.state = {
       loading: true,
-      meterReading: 5543588.440,
-      remainingFuel: 16697.50
+      meterReading: 0,
+      remainingFuel: 0
     };
   }
 
   componentDidMount() {
-    getMasters().then((rows) => {
+    getMasters().then((data) => {
       const masters = {};
+      const { rows, settings } = data;
       if (rows) {
         rows.forEach((row, index) => {
           const { name, key, value } = row;
@@ -43,6 +44,7 @@ class Billing extends Component {
           masters,
           loading: false
         });
+        settings.forEach(row => { this.setState({ [row.name]: row.textJson }); });
       }
     }).catch((err) => {
       console.log(err);
@@ -110,8 +112,8 @@ class Billing extends Component {
     const { meterReading, remainingFuel } = this.state;
 
     const items = [
-      { label: 'Meter Reading', value: meterReading.toFixed(2) },
-      { label: 'Remaining Fuel', value: remainingFuel.toFixed(2) },
+      { label: 'Meter Reading', value: meterReading },
+      { label: 'Remaining Fuel', value: remainingFuel },
     ];
     return (
       <div className="summary" >

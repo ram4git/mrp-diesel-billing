@@ -584,15 +584,19 @@ td.rdtYear:hover {
 }
 
 input.form-control {
-    height: 40px;
-    width: 200px;
-    font-size: 18px;
-    font-weight: bolder;
-    color: #2980b9;
+  height: 40px;
+  width: 200px;
+  font-size: 18px;
+  font-weight: bolder;
+  color: #2980b9;
 }
 
 .vehiclePicker .text {
-    color: #2980b9;
-    font-size: 18px;
-    font-weight: bolder;
+  color: #2980b9;
+  font-size: 18px;
+  font-weight: bolder;
+}
+
+.fuelSettings {
+  margin-top: 40px;
 }

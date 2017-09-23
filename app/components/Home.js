@@ -94,7 +94,7 @@ export default class Home extends Component {
         });
       } else {
         const { name: dbName, pass: dbPass } = row[0];
-        console.log('ROW from db ', JSON.stringify(row[0], null, 2));
+        //console.log('ROW from db ', JSON.stringify(row[0], null, 2));
 
         if (dbName === user) {
           if (dbPass === pass) {

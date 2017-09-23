@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { remote } from 'electron';
-import { getBills, getBillsForShift } from '../int/Masters';
 import { Loader, Header, Message, Table, Popup, Dropdown, Button, Label } from 'semantic-ui-react';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
+import { getBills, getBillsForShift } from '../int/Masters';
 
 const shiftOptions = [
   { key: 'morning', value: 'morning', text: 'MORNING 9AM-9PM' },

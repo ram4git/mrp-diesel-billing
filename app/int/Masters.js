@@ -101,10 +101,20 @@ export function getBill(billNo) {
 export function getMasters() {
 
   return new Promise((resolve, reject) => {
+    let data = {};
     db.serialize(() => {
       db.all('SELECT * FROM MASTERS', (err, rows) => {
         if (!err) {
-          resolve(rows);
+          data['rows'] = rows;
+          db.all('SELECT * FROM SETTINGS',(err, settings) => {
+            if(!err) {
+              data['settings'] = settings;
+              resolve(data);
+            } else {
+              console.log('SQL ERROR', err);
+              reject(err);
+            }
+          });
         } else {
           reject(err);
         }
@@ -158,4 +168,87 @@ export function addUser(name, pass) {
       });
     });
   });
+}
+
+export function addFuelFillRecord(record, remainingFuel) {
+  let valuesArray = [];
+  valuesArray.push(record.date);// #2 date
+  valuesArray.push(record.vehicleNo);// #3 vehicleNo
+  valuesArray.push(record.waybridge);// #4 waybridge
+  valuesArray.push(record.fuelLoaded);// #5 fuel
+  valuesArray.push(record.billedBy);// #5 fuel
+
+
+  return new Promise((resolve, reject) => {
+    const stmt = 'INSERT INTO FUEL_FILL_RECORDS (date, vehicleNo, waybridge, fuelLoaded, billedBy) ' +
+    'VALUES (?,?,?,?,?)';
+    db.run(stmt, valuesArray, (err) => {
+      if (!err) {
+        const updateStatement = 'UPDATE SETTINGS SET textJson = ? WHERE name = ?';
+        const values = [];
+        values.push(remainingFuel);
+        values.push('remainingFuel');
+        db.run(updateStatement, values, (err) => {
+          if (!err) {
+            resolve({ success: true, remainingFuel, id: record.sno });
+          } else {
+            console.log(err);
+            reject(err);
+          }
+        });
+      } else {
+        console.log(err);
+        reject(err);
+      }
+    });
+  });
+}
+
+export function updateInitialMeterReading(meterReading) {
+  const stmt = 'UPDATE SETTINGS SET textJson = ? WHERE name = ?';
+  const values = [];
+  values.push(meterReading);
+  values.push('meterReading');
+  return new Promise((resolve, reject) => {
+    db.run(stmt, values, (err) => {
+      if (!err) {
+        resolve({ success: true, meterReading });
+      } else {
+        console.log(err);
+        reject(err);
+      }
+    });
+  });
+}
+
+export function getFuelFillRecords() {
+  console.log('DB PATH=' + dbPath);
+
+  return new Promise((resolve, reject) => {
+    let isError = false,
+      data = {};
+    db.serialize(() => {
+      db.all('SELECT * FROM SETTINGS',(err, rows) => {
+        if (err) {
+          console.log('SQL ERROR', err);
+          reject(err);
+        } else {
+          data['settings'] = rows;
+          db.all('SELECT * FROM FUEL_FILL_RECORDS ORDER BY sno DESC LIMIT 20', (err, settings) => {
+            if (err) {
+              console.log('SQL ERROR', err);
+              reject(err);
+            } else {
+              data['records'] = settings;
+              resolve(data);
+            }
+          });
+        }
+      });
+    });
+  });
+}
+
+export function getGlobalSettings() {
+
 }

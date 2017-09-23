@@ -197,7 +197,7 @@ class Billing extends Component {
             });
           win.loadURL(`file://${appDir}/app.html?print=${resp.id}`);
           win.webContents.on('did-finish-load', () => {
-            win.openDevTools();
+            //win.openDevTools();
             if (!win) {
               throw new Error('"Print Window" is not defined');
             }

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, List, Modal, Input, Header } from 'semantic-ui-react';
-import { getMasters, addMasterValue } from '../int/Masters';
+import { getMasters, addMasterValue, deleteMasterValue } from '../int/Masters';
 
 export default class Masters extends Component {
 
@@ -8,7 +8,8 @@ export default class Masters extends Component {
     super(props);
     this.state = {
       loading: true,
-      modalOpen: false
+      modalOpen: false,
+      deleteModalOpen: false
     };
   }
 
@@ -19,6 +20,8 @@ export default class Masters extends Component {
 
   modalOpen = (masterKey) => this.setState({ modalOpen: true, modalMasterKey: masterKey })
   modalClose = () => this.setState({ modalOpen: false })
+  deleteModalOpen = (deleteMasterKey, toDeleteMasterValue, deleteMasterId) => this.setState({ deleteModalOpen: true, toDeleteMasterValue, deleteMasterKey, deleteMasterId })
+  deleteModalClose = () => this.setState({ deleteModalOpen: false })
   disableAddButton = () => { return !this.state.modalMasterValue || !this.state.modalMasterValue.split(' ').join('').length; }
 
   render() {
@@ -28,6 +31,7 @@ export default class Masters extends Component {
         <div className="box">
           { this.renderAllMasters() }
           { this.renderAddMasterModal() }
+          { this.renderDeleteMasterModal() }
         </div>
       </div>
     );
@@ -46,6 +50,24 @@ export default class Masters extends Component {
         <Modal.Actions>
           <Button negative content='CANCEL' onClick={this.modalClose.bind(this)} />
           <Button positive icon='checkmark' labelPosition='right' content='ADD' onClick={this.addMasterValue.bind(this)} disabled={this.disableAddButton()} />
+        </Modal.Actions>
+      </Modal>
+    );
+  }
+
+  renderDeleteMasterModal() {
+    const { deleteMasterKey } = this.state;
+    return (
+      <Modal size="small" open={this.state.deleteModalOpen} onClose={this.deleteModalClose.bind(this)}>
+        <Modal.Header>
+          Delete from <span className="head">{ deleteMasterKey }</span>
+        </Modal.Header>
+        <Modal.Content>
+          Are you sure you want to delete <strong>{this.state.toDeleteMasterValue}</strong>?
+        </Modal.Content>
+        <Modal.Actions>
+          <Button negative content='CANCEL' onClick={this.deleteModalClose.bind(this)} />
+          <Button positive icon='checkmark' labelPosition='right' content='DELETE' onClick={this.deleteMasterValue.bind(this)} />
         </Modal.Actions>
       </Modal>
     );
@@ -71,21 +93,46 @@ export default class Masters extends Component {
     });
   }
 
+  deleteMasterValue() {
+    const { deleteMasterKey, deleteMasterId } = this.state;
+    this.deleteModalClose();
+
+    console.log('Deleting MASTER=' + deleteMasterKey + 'VALUE=' + deleteMasterId);
+
+    deleteMasterValue(deleteMasterId)
+    .then((resp) => {
+      if (resp.success) {
+        this.getMastersFromDB()
+      }
+    })
+    .catch((err) => {
+      this.setState({
+        errMsg: err,
+        deleteMasterKey: '',
+        deleteMasterId: '',
+        deleteMasterValue: ''
+      });
+    });
+  }
+
   setMasterValue(e) {
     this.setState({
       modalMasterValue: e.target.value
     });
   }
 
-  renderMasterValues(items) {
+  renderMasterValues(masterKey) {
+    const { masters } = this.state;
+    const items = masters[masterKey];
     const itemArray = [];
     items.forEach((item) => {
       itemArray.push(
-        <List.Item key={item.key} >
+        <List.Item key={item.key} className="valueList">
           <List.Icon name='file' />
           <List.Content>
             <List.Header>{ item.text }</List.Header>
           </List.Content>
+          <List.Icon name='trash' className="masterAction" onClick={this.deleteModalOpen.bind(this, masterKey, item.text, item.key)}/>
         </List.Item>
       );
     });
@@ -106,7 +153,7 @@ export default class Masters extends Component {
               <List.Content>
                 <List.Header className="head">{ masterKey }</List.Header>
                 <List.List>
-                  { this.renderMasterValues(masters[masterKey]) }
+                  { this.renderMasterValues(masterKey) }
                 </List.List>
               </List.Content>
             </List.Item>

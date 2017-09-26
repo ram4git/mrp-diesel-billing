@@ -40,7 +40,7 @@ export default class FuelSettings extends Component {
 
   render() {
     const { data } = Storage.get('session');
-    if (data.user === 'adish') {
+    if ((data.user === 'adish') || (data.user === 'admin')) {
       return (
         <div className="fuelSettings">
           <Header as='h1'>INITIAL SMALL METERE SETTING</Header>

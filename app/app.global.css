@@ -600,3 +600,19 @@ input.form-control {
 .fuelSettings {
   margin-top: 40px;
 }
+
+.item .masterAction {
+  float: right;
+  display: table-cell;
+  font-size: 16px;
+  padding-left: 40px;
+  opacity: 0.1;
+}
+.item .masterAction:hover {
+  opacity: 1;
+  color: #e74c3c;
+}
+
+.item.valueList {
+    display: table-row !important;
+}

@@ -163,6 +163,22 @@ export function addMasterValue(masterKey, masterValue) {
   });
 }
 
+export function deleteMasterValue(masterId) {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      const stmt = 'DELETE FROM MASTERS WHERE key = ?';
+      console.log('STMT=' + stmt);
+      db.run(stmt, [masterId], (err) => {
+        if (!err) {
+          resolve({ success: true });
+        } else {
+          reject(err);
+        }
+      });
+    });
+  });
+}
+
 
 export function getUser(name) {
   return new Promise((resolve, reject) => {

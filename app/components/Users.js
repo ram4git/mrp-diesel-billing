@@ -43,7 +43,7 @@ export default class Users extends Component {
 
   render() {
     const { data } = Storage.get('session');
-    if (data.user === 'adish') {
+    if ((data.user === 'adish') || (data.user === 'admin')) {
       return (
         <div>
           <Header as='h1'>USER MANAGEMENT</Header>

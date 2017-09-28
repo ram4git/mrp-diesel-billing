@@ -87,6 +87,23 @@ MIT
 
 ## Screenshots of UI
 
+**LOGIN PAGE**
+<img width="1212" alt="screen shot 2017-09-28 at 1 44 47 am" src="https://user-images.githubusercontent.com/5549877/30953090-16445e56-a3f0-11e7-916c-4b7cba7b0a17.png">
+
+**BILLING PAGE**
+<img width="1213" alt="screen shot 2017-09-28 at 1 46 29 am" src="https://user-images.githubusercontent.com/5549877/30953089-164420da-a3f0-11e7-8d82-91ac681ae1e1.png">
+
+**SETTINGS PAGE**
+<img width="1211" alt="screen shot 2017-09-28 at 1 46 56 am" src="https://user-images.githubusercontent.com/5549877/30953092-16484d0e-a3f0-11e7-85e2-f2e869851d57.png">
+<img width="1214" alt="screen shot 2017-09-28 at 1 47 06 am" src="https://user-images.githubusercontent.com/5549877/30953091-1644e696-a3f0-11e7-8f8c-6d177c41b671.png">
+
+**REPORTS PAGE**
+<img width="1213" alt="screen shot 2017-09-28 at 1 47 18 am" src="https://user-images.githubusercontent.com/5549877/30953088-1640820e-a3f0-11e7-969c-b9f65d470f17.png">
+<img width="1213" alt="screen shot 2017-09-28 at 1 47 44 am" src="https://user-images.githubusercontent.com/5549877/30953087-16331e84-a3f0-11e7-9b6a-d6184ae94a5d.png">
+<img width="1213" alt="screen shot 2017-09-28 at 1 59 53 am" src="https://user-images.githubusercontent.com/5549877/30953283-c739fdce-a3f0-11e7-96fc-cb641b607bee.png">
+
+**RECIEPT**
+<img width="840" alt="screen shot 2017-09-28 at 1 52 32 am" src="https://user-images.githubusercontent.com/5549877/30953119-282a41ee-a3f0-11e7-87ba-306215cd6802.png">
 
 
 

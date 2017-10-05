@@ -22,8 +22,9 @@ class Search extends Component {
   }
 
   loadMasters() {
-    getMasters().then((rows) => {
+    getMasters().then((data) => {
       const masters = {};
+      const rows = data.rows || [];
       if (rows) {
         rows.forEach((row, index) => {
           const { name, key, value } = row;

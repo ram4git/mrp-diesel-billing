@@ -302,8 +302,8 @@ a.ui.massive.label {
 
 .ui.fluid.attached.button {
   text-align: center;
-  height: 60px;
-  font-size: 24px;
+  height: 40px;
+  font-size: 16px;
 }
 
 button.ui.button.hide {
@@ -353,6 +353,8 @@ button.ui.button.hide {
   display: flex;
   flex-direction: row;
   justify-content: center;
+  margin-bottom: 20px;
+
 }
 .cameraContainer button.camera {
   font-size: 64px;

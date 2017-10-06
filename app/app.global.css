@@ -613,6 +613,22 @@ input.form-control {
 .item .masterAction:hover {
   opacity: 1;
   color: #e74c3c;
+  cursor: pointer;
+}
+
+.action {
+  opacity: 0.4 !important;
+  color: #e74c3c;
+  font-size: 16px !important;
+}
+.action:hover {
+  opacity: 1 !important;
+  color: #e74c3c;
+  cursor: pointer;
+}
+
+.ui .modal {
+  top: 30% !important;
 }
 
 .item.valueList {

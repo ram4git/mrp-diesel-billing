@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { remote } from 'electron';
-import { Loader, Header, Message, Table, Popup, Dropdown, Button, Label } from 'semantic-ui-react';
+import { Modal, Loader, Header, Message, Table, Popup, Dropdown, Button, Label, Icon } from 'semantic-ui-react';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
-import { getBills, getBillsForShift } from '../int/Masters';
+import { getBills, getBillsForShift, deleteBillRecord } from '../int/Masters';
 
 const shiftOptions = [
   { key: 'morning', value: 'morning', text: 'MORNING 9AM-9PM' },
@@ -18,7 +18,8 @@ class Reports extends Component {
     this.state = {
       loading: true,
       shift: 'morning',
-      startDate: moment()
+      startDate: moment(),
+      modalOpen: false,
     };
   }
 
@@ -76,6 +77,11 @@ class Reports extends Component {
       });
     });
   }
+
+  modalOpen = (rowId, dieselIssued, vehicleNo, driverName, meterReading, remainingFuel) => this.setState({
+    modalOpen: true, rowId, dieselIssued, vehicleNo, driverName, meterReading, remainingFuel
+  })
+  modalClose = () => this.setState({ modalOpen: false })
 
   render() {
     return (
@@ -153,11 +159,14 @@ class Reports extends Component {
               const { mileage, prevOdometerReading } = row;
               const d = new Date(date);
               const dateString = moment(d).format('DD/MMM/YYYY - h:mm:ssa')
-              counter = counter + 1;
-              // const dateString = d.toLocaleString();
+              counter += 1;
+
+              const currentTime = new Date();
+              const diffMins = moment(currentTime).diff(moment(d), 'minutes');
               return (
                 <Table.Row key={sno}>
-                  <Table.Cell>{ counter }</Table.Cell>
+                  <Table.Cell>{ counter }{ (diffMins < 30 && sno === 1) ? <Icon name='trash' className='action'
+                    onClick={this.modalOpen.bind(this, date, dieselIssued, vehicleNo, driverName, meterReading, remainingFuel )} /> : null }</Table.Cell>
                   <Table.Cell>{ dateString }</Table.Cell>
                   <Table.Cell>
                     <Popup
@@ -181,6 +190,7 @@ class Reports extends Component {
             })}
           </Table.Body>
         </Table>
+        { this.renderDeleteModal() }
       </div>
     );
   }
@@ -205,6 +215,55 @@ class Reports extends Component {
 
       </div>
     );
+  }
+
+  renderDeleteModal() {
+    const { rowId, dieselIssued, vehicleNo, driverName } = this.state;
+    const d = new Date(rowId);
+    const dateString = moment(d).format('DD/MMM/YYYY - h:mm:ssa')
+
+    return (
+      <Modal size="small" open={this.state.modalOpen} onClose={this.modalClose.bind(this)}>
+        <Modal.Header>
+          Delete bill dated on <span className="head">{ dateString }</span>
+        </Modal.Header>
+        <Modal.Content>
+          Are you sure you want to delete bill for <strong>{dieselIssued} Lts </strong>
+         for <strong>{vehicleNo}</strong> (driver <string>{driverName}</string>)?
+        </Modal.Content>
+        <Modal.Actions>
+          <Button negative content='CANCEL' onClick={this.modalClose.bind(this)} />
+          <Button positive icon='checkmark' labelPosition='right' content='DELETE' onClick={this.deleteBill.bind(this)} />
+        </Modal.Actions>
+      </Modal>
+    );
+  }
+
+  deleteBill() {
+    const { rowId, dieselIssued, remainingFuel, meterReading } = this.state;
+    this.modalClose();
+
+    const newRemainingFuel = remainingFuel + dieselIssued;
+    const newMeterReading = meterReading - dieselIssued;
+
+    deleteBillRecord(rowId, dieselIssued)
+    .then((resp) => {
+      if (resp.success) {
+        this.getBillsFromDB()
+      }
+    })
+    .catch((err) => {
+      this.setState({
+        errMsg: err,
+        rowId: '',
+        dieselIssued: '',
+        vehicleNo: '',
+        driverName: '',
+        meterReading: '',
+        remainingFuel: ''
+      });
+      alert('Unable to delete record ' + err);
+    });
   }
 
   renderTotalBalance() {

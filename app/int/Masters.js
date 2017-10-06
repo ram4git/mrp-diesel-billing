@@ -45,8 +45,8 @@ export function addBill(bill, meterReading, remainingFuel) {
               if (!err2) {
                 resolve({ success: true, remainingFuel, meterReading, id: bill.sno });
               } else {
-                console.log(err);
-                reject(err);
+                console.log(err2);
+                reject(err2);
               }
             });
           } else {
@@ -178,6 +178,47 @@ export function deleteMasterValue(masterId) {
     });
   });
 }
+
+
+export function deleteBillRecord(rowId, dieselIssued) {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      const stmt = 'DELETE FROM BILLS WHERE date = ?';
+      console.log('STMT=' + stmt);
+      db.run(stmt, [rowId], (err) => {
+        if (!err) {
+
+          const updateMeterReadingStatement = 'UPDATE SETTINGS SET textJson = textJson - ? WHERE name = ?';
+          const values2 = [];
+          values2.push(dieselIssued);
+          values2.push('meterReading');
+          db.run(updateMeterReadingStatement, values2, (err2) => {
+            if (!err2) {
+              const updateMeterReadingStatement = 'UPDATE SETTINGS SET textJson = textJson + ? WHERE name = ?';
+              const values3 = [];
+              values3.push(dieselIssued);
+              values3.push('remainingFuel');
+              db.run(updateMeterReadingStatement, values3, (err3) => {
+                if (!err3) {
+                  resolve({ success: true });
+                } else {
+                  console.log(err3);
+                  reject(err3);
+                }
+              });
+            } else {
+              console.log(err2);
+              reject(err2);
+            }
+          });
+        } else {
+          reject(err);
+        }
+      });
+    });
+  });
+}
+
 
 
 export function getUser(name) {

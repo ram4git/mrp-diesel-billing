@@ -158,14 +158,14 @@ class Reports extends Component {
               const { areKeysIssued, billEnteredBy, screenshot } = row;
               const { mileage, prevOdometerReading } = row;
               const d = new Date(date);
-              const dateString = moment(d).format('DD/MMM/YYYY - h:mm:ssa')
+              const dateString = moment(d).format('DD/MMM/YYYY - h:mm:ssa');
               counter += 1;
 
               const currentTime = new Date();
               const diffMins = moment(currentTime).diff(moment(d), 'minutes');
               return (
                 <Table.Row key={sno}>
-                  <Table.Cell>{ counter }{ (diffMins < 30 && sno === 1) ? <Icon name='trash' className='action'
+                  <Table.Cell>{ counter }{ (diffMins < 30 && counter === 1) ? <Icon name='trash' className='action'
                     onClick={this.modalOpen.bind(this, date, dieselIssued, vehicleNo, driverName, meterReading, remainingFuel )} /> : null }</Table.Cell>
                   <Table.Cell>{ dateString }</Table.Cell>
                   <Table.Cell>

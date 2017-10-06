@@ -158,8 +158,8 @@ class Search extends Component {
               const { dieselIssued, odometerReading, remarks } = row;
               const { billEnteredBy, mileage, screenshot } = row;
               const d = new Date(date);
-              const dateString = moment(d).format('DD/MMM/YYYY - h:mm:ssa')
-              counter = counter + 1;
+              const dateString = moment(d).format('DD/MMM/YYYY - h:mm:ssa');
+              counter += 1;
               // const dateString = d.toLocaleString();
               return (
                 <Table.Row key={sno}>

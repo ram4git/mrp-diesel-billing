@@ -160,10 +160,11 @@ class Search extends Component {
               const d = new Date(date);
               const dateString = moment(d).format('DD/MMM/YYYY - h:mm:ssa');
               counter += 1;
+              const counterId = JSON.parse(JSON.stringify(counter));
               // const dateString = d.toLocaleString();
               return (
                 <Table.Row key={sno}>
-                  <Table.Cell>{ counter }</Table.Cell>
+                  <Table.Cell>{ counterId }</Table.Cell>
                   <Table.Cell>{ dateString }</Table.Cell>
                   <Table.Cell>
                     <Popup

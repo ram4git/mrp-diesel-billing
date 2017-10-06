@@ -141,7 +141,7 @@ class Billing extends Component {
   }
 
   renderInputFields() {
-    const { remarks, dieselIssued, odometerReading, areKeysIssued } = this.state;
+    const { remarks, dieselIssued, odometerReading, areKeysIssued, outsideFuel } = this.state;
     const { prevOdometerReading, prevDieselFilled, mileage } = this.state;
 
     return (
@@ -149,13 +149,14 @@ class Billing extends Component {
         <Form.Input label={`Diesel Issued (prev: ${prevDieselFilled} Lts)`} placeholder='' width={4} onChange={ this.onChangeValue.bind(this, 'dieselIssued')} value={dieselIssued} error={!this.state.dieselIssued} />
         <Form.Input label={`Odometer Reading (prev: ${prevOdometerReading} KMs)`} placeholder='' width={4} onChange={ this.onOdometerChange.bind(this)} value={odometerReading} error={!this.state.odometerReading} />
         <Form.Input label='Keys Issued?' width={2} onChange={ this.onChangeValue.bind(this, 'areKeysIssued')} value={areKeysIssued} />
-        <Form.TextArea label={`Remarks (mileage: ${mileage || '0.0'} KM/Lt)`} placeholder='' width={6} onChange={ this.onChangeValue.bind(this, 'remarks')} value={this.state.remarks} />
+        <Form.TextArea label={`Remarks (mileage: ${mileage || '0.0'} KM/Lt)`} placeholder='' width={3} onChange={ this.onChangeValue.bind(this, 'remarks')} value={this.state.remarks} />
+        <Form.Input label='Outside Fuel (Lts)' width={3} onChange={ this.onOutsideFuelChange.bind(this)} value={outsideFuel} />
     </Form.Group>
     );
   }
 
   saveBillToDB() {
-    const { vehicleNo, vehicleType, driverName, meterReading, remainingFuel, mileage } = this.state;
+    const { vehicleNo, vehicleType, driverName, meterReading, remainingFuel, mileage, outsideFuel } = this.state;
     const { dieselIssued, odometerReading, remarks, areKeysIssued, screenshot, prevOdometerReading } = this.state;
     const date = new Date();
     const sno = `${date.toISOString().slice(0, 10).split('-').join('')}${date.toISOString().slice(11, 23).split(/:|\./).join('')}`;
@@ -164,7 +165,7 @@ class Billing extends Component {
     const { data } = Storage.get('session');
     const newMeterReading = (parseFloat(meterReading) + parseFloat(dieselIssued));
     const newRemainingFuel = (parseFloat(remainingFuel) - parseFloat(dieselIssued));
-
+    const remarksText = [remarks, '. **OUTSIDE FUEL: ', outsideFuel, ' Lts**'].join('');
     const payLoad = {
       sno,
       date: time,
@@ -175,7 +176,7 @@ class Billing extends Component {
       remainingFuel,
       dieselIssued: parseFloat(dieselIssued),
       odometerReading: parseFloat(odometerReading),
-      remarks,
+      remarks: remarksText,
       areKeysIssued,
       billEnteredBy: data.user,
       screenshot,
@@ -245,9 +246,31 @@ class Billing extends Component {
     this.setState({
       odometerReading: value
     });
-    const { prevOdometerReading, prevDieselFilled } = this.state;
+    const { prevOdometerReading, prevDieselFilled, outsideFuel } = this.state;
+    let fuelConsumed = parseFloat(prevDieselFilled);
+    if (outsideFuel) {
+      fuelConsumed += parseFloat(outsideFuel);
+    }
     if (prevOdometerReading) {
-      const mileage = (parseFloat(value) - parseFloat(prevOdometerReading)) / parseFloat(prevDieselFilled);
+      const mileage = (parseFloat(value) - parseFloat(prevOdometerReading)) / fuelConsumed;
+      this.setState({
+        mileage: mileage.toFixed(2)
+      });
+    }
+  }
+
+  onOutsideFuelChange(e, data) {
+    const { value } = data;
+    this.setState({
+      outsideFuel: value
+    });
+    const { prevOdometerReading, prevDieselFilled, odometerReading } = this.state;
+    let fuelConsumed = parseFloat(prevDieselFilled);
+    if (value) {
+      fuelConsumed += parseFloat(value);
+    }
+    if (prevOdometerReading) {
+      const mileage = (parseFloat(odometerReading) - parseFloat(prevOdometerReading)) / fuelConsumed;
       this.setState({
         mileage: mileage.toFixed(2)
       });

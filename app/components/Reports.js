@@ -177,10 +177,10 @@ class Reports extends Component {
                     </Popup>
                   </Table.Cell>
                   <Table.Cell>{ driverName }</Table.Cell>
-                  <Table.Cell>{ meterReading }</Table.Cell>
-                  <Table.Cell>{ remainingFuel }</Table.Cell>
-                  <Table.Cell>{ dieselIssued }</Table.Cell>
-                  <Table.Cell>{ `${odometerReading} (p${prevOdometerReading})` }</Table.Cell>
+                  <Table.Cell>{ meterReading ? parseFloat(meterReading).toLocaleString('en-IN') : meterReading }</Table.Cell>
+                  <Table.Cell>{ remainingFuel ? parseFloat(remainingFuel).toLocaleString('en-IN') : remainingFuel }</Table.Cell>
+                  <Table.Cell>{ dieselIssued ? parseFloat(dieselIssued).toLocaleString('en-IN') : dieselIssued }</Table.Cell>
+                  <Table.Cell>{ `${parseFloat(odometerReading).toLocaleString('en-IN') } (p${parseFloat(prevOdometerReading).toLocaleString('en-IN')})` }</Table.Cell>
                   <Table.Cell>{ mileage }</Table.Cell>
                   <Table.Cell>{ remarks }</Table.Cell>
                   <Table.Cell>{ billEnteredBy }</Table.Cell>

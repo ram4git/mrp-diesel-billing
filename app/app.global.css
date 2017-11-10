@@ -632,5 +632,112 @@ input.form-control {
 }
 
 .item.valueList {
-    display: table-row !important;
+  display: table-row !important;
+}
+
+
+.filterable-table-container .record-count {
+  display: none !important;
+}
+
+.filterable-table-container .pull-right {
+  display: none;
+}
+
+.filterable-table-container .col-sm-4.col-sm-pull-4.text-center.text-muted.record-count {
+  display: none !important;
+}
+
+
+.filterable-table-container input.form-control.filter-input {
+  width: 600px;
+  color: #2980b9;
+  text-transform: uppercase;
+}
+
+.filterable-table-container span.close.clear-filter {
+  font-size: 36px;
+  margin: 8px 8px;
+  cursor: pointer;
+}
+
+.filterable-table-container .row.header-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 8px 0;
+}
+
+.filterable-table-container select.form-control.pull-sm-right.pull-md-right.pull-lg-right {
+  height: 40px;
+  width: 200px;
+  color: #2980b9;
+  font-size: 24px;
+}
+
+.filterable-table-container ul.pagination {
+  display: inline-block;
+  padding-left: 0;
+  margin: 20px 0;
+  border-radius: 4px;
+}
+
+
+.filterable-table-container ul.pagination li:not(.disabled) a {
+  cursor: pointer;
+}
+
+.filterable-table-container ul.pagination li a {
+  user-select: none;
+}
+
+.filterable-table-container .pagination>li>a, .pagination>li>span {
+  position: relative;
+  float: left;
+  padding: 6px 12px;
+  margin-left: -1px;
+  line-height: 1.42857143;
+  color: #337ab7;
+  text-decoration: none;
+  background-color: #fff;
+  border: 1px solid #ddd;
+}
+
+.filterable-table-container ul.pagination {
+  display: inline-block;
+  padding-left: 0;
+  margin: 20px 0;
+  border-radius: 4px;
+}
+
+.filterable-table-container .pagination>li {
+  display: inline;
+}
+
+
+.filterable-table-container ul.pagination li:not(.disabled) a {
+  cursor: pointer;
+}
+
+.filterable-table-container ul.pagination li a {
+  user-select: none;
+}
+
+.filterable-table-container .pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover {
+  z-index: 3;
+  color: #fff;
+  cursor: default;
+  background-color: #337ab7;
+  border-color: #337ab7;
+}
+.filterable-table-container .pagination>li>a, .pagination>li>span {
+  position: relative;
+  float: left;
+  padding: 6px 12px;
+  margin-left: -1px;
+  line-height: 1.42857143;
+  color: #337ab7;
+  text-decoration: none;
+  background-color: #fff;
+  border: 1px solid #ddd;
 }

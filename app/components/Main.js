@@ -24,7 +24,8 @@ class Main extends Component {
     reports: Reports,
     search: Search,
     settings: Settings,
-    logout: Billing
+    logout: Billing,
+    sundry: Sundry
   }
 
   state = { activeItem: 'billing' }
@@ -56,6 +57,7 @@ class Main extends Component {
           <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleItemClick}>SETTINGS</Menu.Item>
           <Menu.Item name='reports' active={activeItem === 'reports'} onClick={this.handleItemClick}>REPORTS</Menu.Item>
           <Menu.Item name='search' active={activeItem === 'search'} onClick={this.handleItemClick}>SEARCH</Menu.Item>
+          <Menu.Item name='sundry' active={activeItem === 'sundry'} onClick={this.handleItemClick}>MILEAGE</Menu.Item>
           <Menu.Item name='logout' active={activeItem === 'logout'} onClick={this.handleLogOut}>LOGOUT</Menu.Item>
         </Menu>
         { this.renderSegment() }

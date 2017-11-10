@@ -106,7 +106,7 @@ class Search extends Component {
   }
 
   showMsgIfAny() {
-    if(this.state.errorMsg) {
+    if (this.state.errorMsg) {
       return (
         <Message negative floating>{this.state.errorMsg}</Message>
       );
@@ -175,9 +175,9 @@ class Search extends Component {
                     </Popup>
                   </Table.Cell>
                   <Table.Cell>{ driverName }</Table.Cell>
-                  <Table.Cell>{ dieselIssued }</Table.Cell>
+                  <Table.Cell>{ dieselIssued  }</Table.Cell>
                   <Table.Cell>{ mileage }</Table.Cell>
-                  <Table.Cell>{ odometerReading }</Table.Cell>
+                  <Table.Cell>{ odometerReading ? parseFloat(odometerReading).toLocaleString('en-IN') : odometerReading }</Table.Cell>
                   <Table.Cell>{ remarks }</Table.Cell>
                   <Table.Cell>{ billEnteredBy }</Table.Cell>
                 </Table.Row>

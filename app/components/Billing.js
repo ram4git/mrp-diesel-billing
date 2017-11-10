@@ -113,8 +113,8 @@ class Billing extends Component {
     const { meterReading, remainingFuel } = this.state;
 
     const items = [
-      { label: 'Meter Reading', value: meterReading },
-      { label: 'Remaining Fuel', value: remainingFuel },
+      { label: 'Meter Reading', value: parseFloat(meterReading).toLocaleString('en-IN') },
+      { label: 'Remaining Fuel', value: parseFloat(remainingFuel).toLocaleString('en-IN') },
     ];
     return (
       <div className="summary" >
@@ -165,7 +165,11 @@ class Billing extends Component {
     const { data } = Storage.get('session');
     const newMeterReading = (parseFloat(meterReading) + parseFloat(dieselIssued));
     const newRemainingFuel = (parseFloat(remainingFuel) - parseFloat(dieselIssued));
-    const remarksText = [remarks, '. **OUTSIDE FUEL: ', outsideFuel, ' Lts**'].join('');
+    const remarksArray = [remarks];
+    if (outsideFuel) {
+      remarksArray.push(`. **OUTSIDE FUEL:  ${outsideFuel}, ' Lts**'`);
+    }
+    const remarksText = remarksArray.join('');
     const payLoad = {
       sno,
       date: time,

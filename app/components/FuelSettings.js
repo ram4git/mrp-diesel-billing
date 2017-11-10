@@ -67,7 +67,7 @@ export default class FuelSettings extends Component {
       <Segment inverted color='teal' className="userCreate">
         <Statistic horizontal color='blue'>
           <Statistic.Label>CURRENT METER READING: </Statistic.Label>
-          <Statistic.Value>{ this.state.meterReading }</Statistic.Value>
+          <Statistic.Value>{ this.state.meterReading ? parseFloat(this.state.meterReading).toLocaleString('en-IN') : 0 }</Statistic.Value>
         </Statistic>
         <Form as="div" inverted className="userManagement" as="div">
           <Form.Group widths='equal' as="div">
@@ -102,7 +102,7 @@ export default class FuelSettings extends Component {
         <Segment inverted color='teal' className="userCreate">
           <Statistic horizontal color='blue'>
             <Statistic.Label>Fuel Left Now: </Statistic.Label>
-            <Statistic.Value>{ this.state.remainingFuel }</Statistic.Value>
+            <Statistic.Value>{ this.state.remainingFuel ? parseFloat(this.state.remainingFuel).toLocaleString('en-IN') : 0 }</Statistic.Value>
           </Statistic>
           <Form inverted className="userManagement" as="div">
             <Form.Group widths='equal'>
@@ -187,7 +187,7 @@ export default class FuelSettings extends Component {
                 <Table.Cell>{ dateString }</Table.Cell>
                 <Table.Cell>{ waybridge }</Table.Cell>
                 <Table.Cell>{ vehicleNo }</Table.Cell>
-                <Table.Cell>{ fuelLoaded }</Table.Cell>
+                <Table.Cell>{ fuelLoaded ? parseFloat(fuelLoaded).toLocaleString('en-IN') : 0 }</Table.Cell>
                 <Table.Cell>{ billedBy }</Table.Cell>
               </Table.Row>
             );

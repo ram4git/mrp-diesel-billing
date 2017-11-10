@@ -343,3 +343,36 @@ export function getLastFillRecord(vehicleNo) {
     });
   });
 }
+
+export function getMonthlyMileage() {
+  return new Promise((resolve, reject) => {
+    const stmt = "SELECT strftime('%m-%Y', date / 1000, 'unixepoch') as 'month'," +
+    " vehicleNo, vehicleType, sum(odometerReading - prevOdometerReading) as 'totalDistance'," +
+    " sum((odometerReading - prevOdometerReading)/mileage) as 'totalFuel'" +
+    " from BILLS where " +
+    " prevOdometerReading <> '______.__'" +
+    " group by strftime('%m-%Y', date / 1000, 'unixepoch'), vehicleNo;"
+
+    db.serialize(() => {
+      db.all(stmt, (err, rows) => {
+        if (err) {
+          console.log('SQL ERROR', err);
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
+  });
+}
+
+
+
+// SELECT
+// 	vehicleNo,
+// 	mileage*
+// 	SUM(dieselIssued) as DIESEL,
+// 	strftime('%m-%Y', date / 1000, 'unixepoch') as 'month'
+// FROM
+// 	BILLS
+// group by  strftime('%m-%Y', date / 1000, 'unixepoch'), vehicleNo;

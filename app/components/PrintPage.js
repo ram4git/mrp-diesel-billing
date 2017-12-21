@@ -99,7 +99,7 @@ export default class PrintPage extends Component {
             <td className="value">{this.state.data.driverName}</td>
           </tr>
         </table>
-        <img src={this.state.data.screenshot} height={250}/>
+        <img src={this.state.data.screenshot} height={150}/>
       </div>
     );
   }
